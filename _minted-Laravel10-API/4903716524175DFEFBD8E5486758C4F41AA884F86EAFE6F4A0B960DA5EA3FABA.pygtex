@@ -1,0 +1,18 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?}\PYG{o}{=}
+\PYG{l+s+s1}{\PYGZsq{}providers\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{p}{[}
+
+        \PYG{c+cm}{/*}
+\PYG{c+cm}{         * Laravel Framework Service Providers...}
+\PYG{c+cm}{         */}
+        \PYG{o}{.}
+        \PYG{o}{.}
+        \PYG{o}{.}
+        \PYG{n+nx}{Illuminate\PYGZbs{}Validation\PYGZbs{}ValidationServiceProvider}\PYG{o}{::}\PYG{n+na}{class}\PYG{p}{,}
+        \PYG{n+nx}{Illuminate\PYGZbs{}View\PYGZbs{}ViewServiceProvider}\PYG{o}{::}\PYG{n+na}{class}\PYG{p}{,}
+        \PYG{n+nx}{Tymon\PYGZbs{}JWTAuth\PYGZbs{}Providers\PYGZbs{}LaravelServiceProvider}\PYG{o}{::}\PYG{n+na}{class}\PYG{p}{,}
+        \PYG{o}{.}
+        \PYG{o}{.}
+        \PYG{o}{.}
+\PYG{p}{],}
+\end{Verbatim}

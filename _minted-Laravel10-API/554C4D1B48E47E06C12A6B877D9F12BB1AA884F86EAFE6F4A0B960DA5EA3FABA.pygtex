@@ -1,0 +1,13 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?}\PYG{o}{?}
+\PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{destroy}\PYG{p}{(}\PYG{n+nx}{Post} \PYG{n+nv}{\PYGZdl{}post}\PYG{p}{)}
+\PYG{p}{\PYGZob{}}
+    \PYG{n+nv}{\PYGZdl{}res} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{delete}\PYG{p}{();}
+
+    \PYG{k}{if} \PYG{p}{(}\PYG{n+nv}{\PYGZdl{}res}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+        \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}message\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Post delete succesfully\PYGZsq{}}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}message\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Error to update post\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{500}\PYG{p}{);}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

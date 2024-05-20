@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+sail artisan make:resource V1/PostResource
+\end{Verbatim}

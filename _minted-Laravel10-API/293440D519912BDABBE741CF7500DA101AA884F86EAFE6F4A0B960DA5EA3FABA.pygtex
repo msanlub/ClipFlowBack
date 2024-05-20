@@ -1,0 +1,7 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?}\PYG{o}{=}
+\PYG{c+c1}{//en una sola línea}
+\PYG{n+nx}{Route}\PYG{o}{::}\PYG{n+na}{apiResource}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}v1/posts\PYGZsq{}}\PYG{p}{,}
+                  \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Controllers\PYGZbs{}Api\PYGZbs{}V1\PYGZbs{}PostController}\PYG{o}{::}\PYG{n+na}{class}\PYG{p}{)}
+                   \PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{middleware}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}api\PYGZsq{}}\PYG{p}{);}
+\end{Verbatim}

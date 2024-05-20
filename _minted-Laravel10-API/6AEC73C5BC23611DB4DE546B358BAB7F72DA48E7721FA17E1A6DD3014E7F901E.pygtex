@@ -1,0 +1,3 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{n+nb}{alias} \PYG{n+nv}{sail}\PYG{o}{=}\PYG{l+s+s1}{\PYGZsq{}bash vendor/bin/sail\PYGZsq{}}
+\end{Verbatim}

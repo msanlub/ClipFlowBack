@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?php}
+\PYG{n+nx}{Route}\PYG{o}{::}\PYG{n+na}{get}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}/\PYGZsq{}}\PYG{p}{,} \PYG{k}{function}\PYG{p}{()\PYGZob{}}
+    \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}Hello world\PYGZdq{}}\PYG{p}{;}
+\PYG{p}{\PYGZcb{});}
+\end{Verbatim}

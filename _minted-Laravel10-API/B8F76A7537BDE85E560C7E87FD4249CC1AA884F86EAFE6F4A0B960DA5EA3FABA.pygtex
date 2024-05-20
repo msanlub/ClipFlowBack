@@ -1,0 +1,4 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?}\PYG{o}{=}
+\PYG{n+nx}{Tymon\PYGZbs{}JWTAuth\PYGZbs{}Providers\PYGZbs{}LaravelServiceProvider}\PYG{o}{::}\PYG{n+na}{class}\PYG{p}{,}
+\end{Verbatim}

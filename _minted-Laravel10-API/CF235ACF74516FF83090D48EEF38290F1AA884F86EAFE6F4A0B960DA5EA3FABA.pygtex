@@ -1,0 +1,84 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?php}
+
+\PYG{k}{namespace} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Controllers\PYGZbs{}Api\PYGZbs{}V1}\PYG{p}{;}
+
+\PYG{k}{use} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Controllers\PYGZbs{}Controller}\PYG{p}{;}
+
+\PYG{k}{class} \PYG{n+nc}{AuthController} \PYG{k}{extends} \PYG{n+nx}{Controller}
+\PYG{p}{\PYGZob{}}
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Create a new AuthController instance.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return void}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf+fm}{\PYGZus{}\PYGZus{}construct}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{n+nv}{\PYGZdl{}this}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{middleware}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}auth:api\PYGZsq{}}\PYG{p}{,} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}except\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}login\PYGZsq{}}\PYG{p}{]]);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Get a JWT via given credentials.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}JsonResponse}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{login}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{n+nv}{\PYGZdl{}credentials} \PYG{o}{=} \PYG{n+nx}{request}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}email\PYGZsq{}}\PYG{p}{,} \PYG{l+s+s1}{\PYGZsq{}password\PYGZsq{}}\PYG{p}{]);}
+
+        \PYG{k}{if} \PYG{p}{(}\PYG{o}{!} \PYG{n+nv}{\PYGZdl{}token} \PYG{o}{=} \PYG{n+nx}{auth}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{attempt}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}credentials}\PYG{p}{))} \PYG{p}{\PYGZob{}}
+            \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}error\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Unauthorized\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{401}\PYG{p}{);}
+        \PYG{p}{\PYGZcb{}}
+
+        \PYG{k}{return} \PYG{n+nv}{\PYGZdl{}this}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{respondWithToken}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}token}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Get the authenticated User.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}JsonResponse}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{me}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{(}\PYG{n+nx}{auth}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{user}\PYG{p}{());}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Log the user out (Invalidate the token).}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}JsonResponse}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{logout}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{n+nx}{auth}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{logout}\PYG{p}{();}
+
+        \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}message\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Successfully logged out\PYGZsq{}}\PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Refresh a token.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}JsonResponse}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{refresh}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{k}{return} \PYG{n+nv}{\PYGZdl{}this}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{respondWithToken}\PYG{p}{(}\PYG{n+nx}{auth}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{refresh}\PYG{p}{());}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Get the token array structure.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @param  string \PYGZdl{}token}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}JsonResponse}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{protected} \PYG{k}{function} \PYG{n+nf}{respondWithToken}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}token}\PYG{p}{)}
+    \PYG{p}{\PYGZob{}}
+        \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}
+            \PYG{l+s+s1}{\PYGZsq{}access\PYGZus{}token\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{n+nv}{\PYGZdl{}token}\PYG{p}{,}
+            \PYG{l+s+s1}{\PYGZsq{}token\PYGZus{}type\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}bearer\PYGZsq{}}\PYG{p}{,}
+            \PYG{l+s+s1}{\PYGZsq{}expires\PYGZus{}in\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{n+nx}{auth}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{factory}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{getTTL}\PYG{p}{()} \PYG{o}{*} \PYG{l+m+mi}{60}
+        \PYG{p}{]);}
+    \PYG{p}{\PYGZcb{}}
+\PYG{p}{\PYGZcb{}}
+\end{Verbatim}

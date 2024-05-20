@@ -1,0 +1,6 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{x}{public function \PYGZus{}\PYGZus{}construct()}
+\PYG{x}{\PYGZob{}}
+\PYG{x}{    \PYGZdl{}this\PYGZhy{}\PYGZgt{}middleware(\PYGZsq{}auth:api\PYGZsq{}, [\PYGZsq{}except\PYGZsq{} =\PYGZgt{} [\PYGZsq{}index\PYGZsq{}, \PYGZsq{}show\PYGZsq{}]]);}
+\PYG{x}{\PYGZcb{}}
+\end{Verbatim}

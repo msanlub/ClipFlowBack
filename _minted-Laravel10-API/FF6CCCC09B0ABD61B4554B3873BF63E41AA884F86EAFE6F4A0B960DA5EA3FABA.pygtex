@@ -1,0 +1,52 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?php}
+
+\PYG{k}{namespace} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Controllers\PYGZbs{}Api\PYGZbs{}V1}\PYG{p}{;}
+
+\PYG{k}{use} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Controllers\PYGZbs{}Controller}\PYG{p}{;}
+\PYG{k}{use} \PYG{n+nx}{App\PYGZbs{}Models\PYGZbs{}Post}\PYG{p}{;}
+\PYG{k}{use} \PYG{n+nx}{Illuminate\PYGZbs{}Http\PYGZbs{}Request}\PYG{p}{;}
+\PYG{k}{use} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Requests\PYGZbs{}V1\PYGZbs{}PostRequest}\PYG{p}{;}
+\PYG{k}{use} \PYG{n+nx}{Illuminate\PYGZbs{}Support\PYGZbs{}Facades\PYGZbs{}Auth}\PYG{p}{;}
+
+\PYG{k}{class} \PYG{n+nc}{PostController} \PYG{k}{extends} \PYG{n+nx}{Controller}
+\PYG{p}{\PYGZob{}}
+\PYG{o}{...}
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Store a newly created resource in storage.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @param  App\PYGZbs{}Http\PYGZbs{}Requests\PYGZbs{}V1\PYGZbs{}PostRequest \PYGZdl{}request}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}Response}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{store}\PYG{p}{(}\PYG{n+nx}{PostRequest} \PYG{n+nv}{\PYGZdl{}request}\PYG{p}{)}
+    \PYG{p}{\PYGZob{}}
+        \PYG{n+nv}{\PYGZdl{}request}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{validated}\PYG{p}{();}
+
+        \PYG{n+nv}{\PYGZdl{}user} \PYG{o}{=} \PYG{n+nx}{Auth}\PYG{o}{::}\PYG{n+na}{user}\PYG{p}{();}
+
+        \PYG{n+nv}{\PYGZdl{}post} \PYG{o}{=} \PYG{k}{new} \PYG{n+nx}{Post}\PYG{p}{();}
+        \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{user}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{associate}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}user}\PYG{p}{);}
+        \PYG{n+nv}{\PYGZdl{}url\PYGZus{}image} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}this}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{upload}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}request}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{file}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}image\PYGZsq{}}\PYG{p}{));}
+        \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{image} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}url\PYGZus{}image}\PYG{p}{;}
+        \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{title} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}request}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{input}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}title\PYGZsq{}}\PYG{p}{);}
+        \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{description} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}request}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{input}\PYG{p}{(}\PYG{l+s+s1}{\PYGZsq{}description\PYGZsq{}}\PYG{p}{);}
+
+        \PYG{n+nv}{\PYGZdl{}res} \PYG{o}{=} \PYG{n+nv}{\PYGZdl{}post}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{save}\PYG{p}{();}
+
+        \PYG{k}{if} \PYG{p}{(}\PYG{n+nv}{\PYGZdl{}res}\PYG{p}{)} \PYG{p}{\PYGZob{}}
+            \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}message\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Post create succesfully\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{201}\PYG{p}{);}
+        \PYG{p}{\PYGZcb{}}
+        \PYG{k}{return} \PYG{n+nx}{response}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{json}\PYG{p}{([}\PYG{l+s+s1}{\PYGZsq{}message\PYGZsq{}} \PYG{o}{=\PYGZgt{}} \PYG{l+s+s1}{\PYGZsq{}Error to create post\PYGZsq{}}\PYG{p}{],} \PYG{l+m+mi}{500}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+
+    \PYG{k}{private} \PYG{k}{function} \PYG{n+nf}{upload}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}image}\PYG{p}{)}
+    \PYG{p}{\PYGZob{}}
+        \PYG{n+nv}{\PYGZdl{}path\PYGZus{}info} \PYG{o}{=} \PYG{n+nb}{pathinfo}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}image}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{getClientOriginalName}\PYG{p}{());}
+        \PYG{n+nv}{\PYGZdl{}post\PYGZus{}path} \PYG{o}{=} \PYG{l+s+s1}{\PYGZsq{}images/post\PYGZsq{}}\PYG{p}{;}
+
+        \PYG{n+nv}{\PYGZdl{}rename} \PYG{o}{=} \PYG{n+nb}{uniqid}\PYG{p}{()} \PYG{o}{.} \PYG{l+s+s1}{\PYGZsq{}.\PYGZsq{}} \PYG{o}{.} \PYG{n+nv}{\PYGZdl{}path\PYGZus{}info}\PYG{p}{[}\PYG{l+s+s1}{\PYGZsq{}extension\PYGZsq{}}\PYG{p}{];}
+        \PYG{n+nv}{\PYGZdl{}image}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{move}\PYG{p}{(}\PYG{n+nx}{public\PYGZus{}path}\PYG{p}{()} \PYG{o}{.} \PYG{l+s+s2}{\PYGZdq{}/}\PYG{l+s+si}{\PYGZdl{}post\PYGZus{}path}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{,} \PYG{n+nv}{\PYGZdl{}rename}\PYG{p}{);}
+        \PYG{k}{return} \PYG{l+s+s2}{\PYGZdq{}}\PYG{l+s+si}{\PYGZdl{}post\PYGZus{}path}\PYG{l+s+s2}{/}\PYG{l+s+si}{\PYGZdl{}rename}\PYG{l+s+s2}{\PYGZdq{}}\PYG{p}{;}
+    \PYG{p}{\PYGZcb{}}
+\PYG{o}{...}
+\end{Verbatim}

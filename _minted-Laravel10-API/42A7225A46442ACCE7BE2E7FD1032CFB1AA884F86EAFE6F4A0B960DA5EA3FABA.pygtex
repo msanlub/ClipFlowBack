@@ -1,0 +1,25 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{c+cp}{\PYGZlt{}?php}
+
+\PYG{o}{...}
+\PYG{k}{use} \PYG{n+nx}{App\PYGZbs{}Http\PYGZbs{}Resources\PYGZbs{}V1\PYGZbs{}PostResource}\PYG{p}{;}
+
+\PYG{k}{class} \PYG{n+nc}{PostController} \PYG{k}{extends} \PYG{n+nx}{Controller}
+\PYG{p}{\PYGZob{}}
+    \PYG{o}{...}
+    \PYG{l+s+sd}{/**}
+\PYG{l+s+sd}{     * Display a listing of the resource.}
+\PYG{l+s+sd}{     *}
+\PYG{l+s+sd}{     * @return \PYGZbs{}Illuminate\PYGZbs{}Http\PYGZbs{}Response}
+\PYG{l+s+sd}{     */}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{index}\PYG{p}{()}
+    \PYG{p}{\PYGZob{}}
+        \PYG{k}{return} \PYG{n+nx}{PostResource}\PYG{o}{::}\PYG{n+na}{collection}\PYG{p}{(}\PYG{n+nx}{Post}\PYG{o}{::}\PYG{n+na}{latest}\PYG{p}{()}\PYG{o}{\PYGZhy{}\PYGZgt{}}\PYG{n+na}{paginate}\PYG{p}{());}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{o}{...}
+    \PYG{k}{public} \PYG{k}{function} \PYG{n+nf}{show}\PYG{p}{(}\PYG{n+nx}{Post} \PYG{n+nv}{\PYGZdl{}post}\PYG{p}{)}
+    \PYG{p}{\PYGZob{}}
+         \PYG{k}{return} \PYG{k}{new} \PYG{n+nx}{PostResource}\PYG{p}{(}\PYG{n+nv}{\PYGZdl{}post}\PYG{p}{);}
+    \PYG{p}{\PYGZcb{}}
+    \PYG{o}{...}
+\end{Verbatim}

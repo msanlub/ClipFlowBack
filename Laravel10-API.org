@@ -101,7 +101,7 @@ El archivo =docker-compose.yml= define una variedad de contenedores de
 =Laravel=.
 
 
-* Aplicación Artículos con imágenes
+* Aplicación Artículos con imágenes (blog con entradas de texto y/o imágenes)
 Al crear una nueva aplicación Laravel a través de Sail, puedes elegir
 qué servicios deben configurarse en el archivo docker-compose.yml de
 tu nueva aplicación.
@@ -1103,6 +1103,17 @@ https://blog.logrocket.com/implementing-jwt-authentication-laravel-9/
 
 https://www.linkedin.com/pulse/rest-api-laravel-10-using-jwt-token-muhammad-babar-gvqfc/
 
+
+* Apendice I: Recomponer vendor
+#+begin_src bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php81-composer:latest \
+    composer install --ignore-platform-reqs
+
+#+end_src
 
 
 Footnotes:

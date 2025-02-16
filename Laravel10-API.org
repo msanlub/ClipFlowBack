@@ -2,11 +2,13 @@
 #+AUTHOR:
 #+EMAIL:
 #+DATE:
+#+LANGUAGE: es
+#+LATEX_HEADER: \renewcommand*{\contentsname}{Contenidos}
 #+OPTIONS: texht:t toc:3 num:3 -:nil ^:{} ":nil ':nil
 #+OPTIONS: tex:t
 #+LATEX_CLASS: article
-#+LATEX_HEADER:p
-#+LANGUAGE: es
+#+LATEX_HEADER:
+
 
 #+BEGIN_COMMENT
 #+LATEX_HEADER: \usepackage[AUTO]{babel}
@@ -1081,7 +1083,8 @@ private function deleteImage($imagePath)
 }
 #+end_src
 
-La función ~deleteImage~ se encarga de eliminar el archivo de la imagen del disco.
+La función ~deleteImage~ se encarga de eliminar el archivo de la
+imagen del disco.
 
 - Obtener la ruta completa: Convierte la ruta relativa de la imagen
   ($imagePath) a una ruta completa en el sistema de archivos
@@ -1111,13 +1114,15 @@ Laravel maneja excepciones mediante la clase ~Handler.php~, pero
 podemos crear un middleware específico para manejar respuestas de
 error de forma más estructurada.
 
-Ejecutamos el siguiente comando para crear un middleware de manejo de errores:
+Ejecutamos el siguiente comando para crear un middleware de manejo de
+errores:
 
 #+BEGIN_SRC bash
 sail artisan make:middleware ApiExceptionHandler
 #+END_SRC
 
-Luego editamos ~app/Http/Middleware/ApiExceptionHandler.php~ y agregamos lo siguiente:
+Luego editamos ~app/Http/Middleware/ApiExceptionHandler.php~ y
+agregamos lo siguiente:
 
 #+BEGIN_SRC php
 namespace App\Http\Middleware;
@@ -1229,13 +1234,15 @@ public function handle($request, Closure $next)
 }
 #+END_SRC
 
-Después de estos cambios, la API devolverá respuestas JSON más claras y estructuradas en caso de errores.
+Después de estos cambios, la API devolverá respuestas JSON más claras
+y estructuradas en caso de errores.
 
 
 ** Troubleshooting de Errores Comunes
 
 *** "Please provide a valid cache path"
-Este error ocurre cuando Laravel no puede escribir en la caché debido a un problema con la ruta de almacenamiento.
+Este error ocurre cuando Laravel no puede escribir en la caché debido
+a un problema con la ruta de almacenamiento.
 
 **** Solución:
 Ejecuta estos comandos para limpiar y regenerar la caché:
@@ -1246,12 +1253,300 @@ sail artisan cache:clear
 sail artisan config:cache
 #+END_SRC
 
-Si el problema persiste, asegúrate de que la carpeta ~storage/framework/cache~ existe y tiene los permisos correctos:
+Si el problema persiste, asegúrate de que la carpeta
+~storage/framework/cache~ existe y tiene los permisos correctos:
 
 #+BEGIN_SRC bash
 sail artisan storage:link
 chmod -R 775 storage bootstrap/cache
 #+END_SRC
+
+* 2.7 Próximos Pasos en la API
+
+Ahora que hemos implementado un control de errores sólido en nuestra
+API de Laravel 10, hay algunos aspectos adicionales que se pueden
+mejorar para optimizar su funcionamiento y seguridad.
+
+** 2.7.1 Implementación de Logging de Errores
+
+Es recomendable registrar los errores para facilitar la depuración y
+el monitoreo del sistema. Podemos hacerlo en ~Handler.php~ utilizando
+Laravel Logging:
+
+#+BEGIN_SRC php
+use Illuminate\Support\Facades\Log;
+
+public function render($request, Throwable $exception)
+{
+    Log::error('Error en la API', [
+        'exception' => $exception,
+        'url' => $request->fullUrl(),
+        'user' => auth()->user() ? auth()->user()->id : 'guest'
+    ]);
+
+    return parent::render($request, $exception);
+}
+#+END_SRC
+
+Esto guardará los errores en ~storage/logs/laravel.log~ para su
+análisis posterior.
+
+** 2.7.2 Configuración de CORS para Integración con Vue.js
+
+Para permitir que el frontend en Vue.js pueda consumir la API sin
+problemas de seguridad, configuramos CORS en ~config/cors.php~:
+
+#+BEGIN_SRC php
+return [
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_methods' => ['*'],
+    'allowed_origins' => ['http://localhost:5173'], // Ajustar al dominio del frontend
+    'allowed_origins_patterns' => [],
+    'allowed_headers' => ['*'],
+    'exposed_headers' => [],
+    'max_age' => 0,
+    'supports_credentials' => true,
+];
+#+END_SRC
+
+También agregamos el middleware de CORS en ~app/Http/Kernel.php~:
+
+#+BEGIN_SRC php
+protected $middlewareGroups = [
+    'api' => [
+        \Illuminate\Cors\Middleware\HandleCors::class,
+        'throttle:60,1',
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+];
+#+END_SRC
+
+Esto permitirá que Vue.js pueda interactuar con la API sin bloqueos
+por política de seguridad del navegador.
+
+
+** 2.7.2b Implementación de Rate Limiting
+
+Para evitar abusos en nuestra API, podemos implementar límites de tasa
+en ~app/Http/Kernel.php~:
+
+#+BEGIN_SRC php
+protected $middlewareGroups = [
+    'api' => [
+        'throttle:60,1', // 60 solicitudes por minuto
+        \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    ],
+];
+#+END_SRC
+
+Esto limitará las solicitudes de un mismo usuario en un período de tiempo.
+
+** 2.7.3 Documentación con OpenAPI (Swagger)
+
+Para mejorar la usabilidad de nuestra API, podemos generar
+documentación automática con Swagger. Instalamos el paquete:
+
+#+BEGIN_SRC bash
+composer require darkaonline/l5-swagger
+#+END_SRC
+
+Y generamos la documentación con:
+
+#+BEGIN_SRC bash
+php artisan l5-swagger:generate
+#+END_SRC
+
+Ahora los usuarios podrán acceder a
+~http://localhost/api/documentation~ para consultar la API.
+
+** 2.7.4 Pruebas Unitarias y de Integración
+
+Añadimos pruebas para asegurar que los errores se manejan
+correctamente. Creamos un test:
+
+#+BEGIN_SRC bash
+php artisan make:test ApiErrorHandlingTest
+#+END_SRC
+
+Ejemplo de prueba en ~tests/Feature/ApiErrorHandlingTest.php~:
+
+#+BEGIN_SRC php
+public function test_not_found_error()
+{
+    $response = $this->getJson('/api/v1/posts/9999');
+    $response->assertStatus(404)->assertJson(['error' => 'Recurso no encontrado']);
+}
+#+END_SRC
+
+** 2.7.5 Seguridad Adicional: Validación de Payloads con JSON Schema
+
+Podemos asegurar que las solicitudes cumplen con un esquema
+predefinido utilizando el paquete ~justinrainbow/json-schema~:
+
+#+BEGIN_SRC bash
+composer require justinrainbow/json-schema
+#+END_SRC
+
+Y validamos en nuestros controladores:
+
+#+BEGIN_SRC php
+use JsonSchema\Validator;
+
+$validator = new Validator;
+$validator->validate($request->all(),
+ (object)['type' => 'object', 'required' => ['title', 'description']]);
+if (!$validator->isValid()) {
+    return response()->json(['error' => 'Payload inválido'], 400);
+}
+#+END_SRC
+
+** 2.7.6 Implementación de Roles y Permisos
+
+Para gestionar permisos en la API, podemos utilizar Laravel **Gates**
+o el paquete ~spatie/laravel-permission~.
+
+*** Instalación del paquete de roles y permisos
+
+#+BEGIN_SRC bash
+composer require spatie/laravel-permission
+#+END_SRC
+
+Publicamos la configuración y ejecutamos las migraciones:
+
+#+BEGIN_SRC bash
+php artisan vendor:publish --provider="Spatie\Permission\PermissionServiceProvider"
+php artisan migrate
+#+END_SRC
+
+*** Definir Roles y Permisos
+
+En ~App/Models/User.php~, añadimos:
+
+#+BEGIN_SRC php
+use Spatie\Permission\Traits\HasRoles;
+
+class User extends Authenticatable
+{
+    use HasRoles;
+}
+#+END_SRC
+
+En un Seeder, creamos roles y permisos:
+
+#+BEGIN_SRC php
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+
+Role::create(['name' => 'admin']);
+Role::create(['name' => 'editor']);
+Role::create(['name' => 'user']);
+
+Permission::create(['name' => 'create post']);
+Permission::create(['name' => 'edit post']);
+Permission::create(['name' => 'delete post']);
+
+$admin = Role::findByName('admin');
+$admin->givePermissionTo(['create post', 'edit post', 'delete post']);
+#+END_SRC
+
+*** Aplicar Permisos en Controladores
+
+Podemos restringir el acceso con middleware en ~routes/api.php~:
+
+#+BEGIN_SRC php
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+  Route::post('/posts', [PostController::class, 'store']);
+  Route::delete('/posts/{post}', [PostController::class, 'destroy']);
+});
+#+END_SRC
+
+O dentro del controlador:
+
+#+BEGIN_SRC php
+public function store(Request $request)
+{
+    if (!auth()->user()->can('create post')) {
+        return response()->json(['error' =>
+                          'No tienes permisos para crear posts'], 403);
+    }
+    // Lógica para crear post...
+}
+#+END_SRC
+
+Con esto, nuestra API ahora implementa un control de roles y permisos
+basado en Laravel Permission.
+
+*** Ocultar Posts
+
+Para permitir que administradores y editores oculten posts, agregamos
+un nuevo campo ~hidden~ en la migración de posts:
+
+#+BEGIN_SRC php
+Schema::table('posts', function (Blueprint $table) {
+    $table->boolean('hidden')->default(false);
+});
+#+END_SRC
+
+Modificamos ~PostController.php~ para permitir ocultar un post:
+
+#+BEGIN_SRC php
+public function hide(Post $post)
+{
+    $user = auth()->user();
+//¿Cómo podrías hacer que el propio creador pueda ocultar el post?
+    if ($user->hasRole('admin') || $user->hasRole('editor')) {
+        $post->hidden = true;
+        $post->save();
+
+        // Notificar al autor del post
+        $post->user->notify(new PostHiddenNotification($post));
+
+        return response()->json(['message' => 'El post ha sido ocultado'], 200);
+    }
+
+    return response()->json(['error' =>
+ 'No tienes permisos para ocultar este post'], 403);
+}
+#+END_SRC
+
+Finalmente, creamos la notificación ~PostHiddenNotification~ para avisar al autor:
+
+#+BEGIN_SRC bash
+php artisan make:notification PostHiddenNotification
+#+END_SRC
+
+Editamos ~app/Notifications/PostHiddenNotification.php~:
+
+#+BEGIN_SRC php
+use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\MailMessage;
+
+class PostHiddenNotification extends Notification
+{
+    protected $post;
+
+    public function __construct($post)
+    {
+        $this->post = $post;
+    }
+
+    public function via($notifiable)
+    {
+        return ['mail'];
+    }
+
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+            ->subject('Tu post ha sido ocultado')
+            ->line('Tu post ha sido ocultado por un moderador debido a contenido inapropiado.')
+            ->action('Ver detalles', url('/posts/' . $this->post->id));
+    }
+}
+#+END_SRC
+
+Con esto, los administradores y editores podrán ocultar posts
+inapropiados y notificar al autor.
 
 *** Conclusiones
 Y listo, ya tenemos nuestra API completamente funcional con

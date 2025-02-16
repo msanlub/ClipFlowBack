@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-curl \PYGZhy{}s \PYG{l+s+s2}{\PYGZdq{}https://laravel.build/laravel10\PYGZhy{}api?with=mysql,redis\PYGZdq{}} \PYG{p}{|} bash
-\end{Verbatim}

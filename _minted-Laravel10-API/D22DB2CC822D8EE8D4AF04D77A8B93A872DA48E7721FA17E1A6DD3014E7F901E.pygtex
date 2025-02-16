@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-sail artisan make:request V1/PostRequest
-\end{Verbatim}

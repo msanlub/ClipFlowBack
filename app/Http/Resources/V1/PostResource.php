@@ -14,17 +14,17 @@ class PostResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
+        //return parent::toArray($request); devuelve todos los campos de la tabla,tal cual
         return [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
             'photo' => url($this->image),
             'author' => [
-            'name' => $this->user->name,
-            'email' => $this->user->email,
+                'name' => $this->user->name,
+                'email' => $this->user->email,
             ],
             'created_at' => $this->created_at
-            ];
+        ];
     }
 }

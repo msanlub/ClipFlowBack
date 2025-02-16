@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-sail composer require tymon/jwt\PYGZhy{}auth:*
-\end{Verbatim}

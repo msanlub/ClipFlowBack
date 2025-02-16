@@ -1,5 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-Content\PYGZhy{}type: multipart/form\PYGZhy{}data;
-Authorization: Bearer \PYG{p}{\PYGZlt{}}\PYG{n+nt}{my\PYGZhy{}token}\PYG{p}{\PYGZgt{}}
-Accept: application/json
-\end{Verbatim}

@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-sail php artisan make:controller Api/V1/PostController \PYGZhy{}\PYGZhy{}api \PYGZhy{}\PYGZhy{}model\PYG{o}{=}Post
-\end{Verbatim}

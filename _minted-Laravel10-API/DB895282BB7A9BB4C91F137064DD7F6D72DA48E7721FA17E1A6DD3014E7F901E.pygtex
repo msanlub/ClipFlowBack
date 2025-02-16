@@ -1,3 +1,0 @@
-\begin{Verbatim}[commandchars=\\\{\}]
-sail artisan make:model Post \PYGZhy{}m
-\end{Verbatim}

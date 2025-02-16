@@ -23,10 +23,20 @@ class PostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
             'title' => 'required|max:70',
             'image' => 'required|image|max:1024',
             'description' => 'required|max:2000',
+        ];
+    }
+
+    public function messages()
+    {
+        return [
+            'title.required' => 'El título es obligatorio.',
+            'title.max' => 'El título no puede superar los 70 caracteres.',
+            'image.required' => 'La imagen es obligatoria.',
+            'image.image' => 'El archivo debe ser una imagen.',
+            'description.required' => 'La descripción es obligatoria.',
         ];
     }
 }

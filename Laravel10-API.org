@@ -101,7 +101,7 @@ El archivo =docker-compose.yml= define una variedad de contenedores de
 =Laravel=.
 
 
-* Aplicación Artículos con imágenes
+* Aplicación Artículos con imágenes (blog con entradas de texto y/o imágenes)
 Al crear una nueva aplicación Laravel a través de Sail, puedes elegir
 qué servicios deben configurarse en el archivo docker-compose.yml de
 tu nueva aplicación.
@@ -1055,18 +1055,42 @@ Por último vamos a crear la acción de borrado. Volvemos al archivo
 =PostController.php= y modificamos el método =destroy= por el siguiente
 código:
 #+begin_src php
-<??
+<?=
 public function destroy(Post $post)
 {
-    $res = $post->delete();
-
-    if ($res) {
-        return response()->json(['message' => 'Post delete succesfully']);
+    if (Auth::id() !== $post->user_id) {
+        return response()->json(['message' => 'You are not the owner of this post'], 403);
     }
 
-    return response()->json(['message' => 'Error to update post'], 500);
+    // Eliminar la imagen asociada
+    $this->deleteImage($post->image);
+
+    $res = $post->delete();
+    if ($res) {
+        return response()->json(['message' => 'Post deleted successfully'], 200);
+    }
+    return response()->json(['message' => 'Error to delete post'], 500);
+}
+
+private function deleteImage($imagePath)
+{
+        $fullPath = public_path($imagePath);
+        if (file_exists($fullPath)) {
+            @unlink($fullPath); // Elimina el archivo
+        }
 }
 #+end_src
+
+La función ~deleteImage~ se encarga de eliminar el archivo de la imagen del disco.
+
+- Obtener la ruta completa: Convierte la ruta relativa de la imagen
+  ($imagePath) a una ruta completa en el sistema de archivos
+  (~$fullPath = public_path($imagePath)~).
+- Comprobar si el archivo existe: Verifica si el archivo existe en la
+  ruta especificada (if (file_exists($fullPath))).
+- Eliminar el archivo: Si el archivo existe, lo elimina usando la
+  función unlink() de PHP (@unlink($fullPath)). El operador @ suprime
+  cualquier error que pueda ocurrir durante la eliminación.
 
 En este caso solo debemos lanzar el método =delete= y listo, nuestro
 post habrá sido eliminado.
@@ -1075,6 +1099,159 @@ Para lanzar la petición deberemos utilizar el método =DELETE= y usar la
 siguiente =url= sustituyendo el número final por el =id= del post que
 queramos eliminar, ejemplo: =http://localhost:8000/api/v1/posts/1=
 
+** Control de Errores en la API
+
+En este paso, añadiremos un sistema de control de errores a nuestra
+API para mejorar la respuesta en casos de errores como peticiones
+inválidas, recursos no encontrados o errores del servidor.
+
+** 2.6.1 Middleware de Manejo de Errores
+
+Laravel maneja excepciones mediante la clase ~Handler.php~, pero
+podemos crear un middleware específico para manejar respuestas de
+error de forma más estructurada.
+
+Ejecutamos el siguiente comando para crear un middleware de manejo de errores:
+
+#+BEGIN_SRC bash
+sail artisan make:middleware ApiExceptionHandler
+#+END_SRC
+
+Luego editamos ~app/Http/Middleware/ApiExceptionHandler.php~ y agregamos lo siguiente:
+
+#+BEGIN_SRC php
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Throwable;
+
+class ApiExceptionHandler
+{
+    public function handle($request, Closure $next)
+    {
+        try {
+            return $next($request);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Recurso no encontrado'], 404);
+        } catch (HttpException $e) {
+            return response()->json(['error' => $e->getMessage()], $e->getStatusCode());
+        } catch (Throwable $e) {
+            return response()->json(['error' => 'Error interno del servidor'], 500);
+        }
+    }
+}
+#+END_SRC
+
+Registramos el middleware en ~app/Http/Kernel.php~ dentro de ~$middlewareAliases~:
+
+#+BEGIN_SRC php
+'api.exception' => \App\Http\Middleware\ApiExceptionHandler::class,
+#+END_SRC
+
+Ahora podemos aplicar este middleware en nuestras rutas de la API.
+
+** Manejo de Excepciones en los Controladores
+
+En nuestros controladores, podemos lanzar excepciones en caso de
+errores. Modificamos ~PostController.php~ para añadir un manejo
+adecuado en los métodos ~show~, ~update~ y ~destroy~.
+
+#+BEGIN_SRC php
+use Illuminate\Http\JsonResponse;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+public function show(Post $post): JsonResponse
+{
+    if (!$post) {
+        throw new ModelNotFoundException("Post no encontrado");
+    }
+    return response()->json(new PostResource($post), 200);
+}
+
+public function update(Request $request, Post $post): JsonResponse
+{
+    if (Auth::id() !== $post->user->id) {
+        return response()->json(['message' => 'No tienes permisos'], 403);
+    }
+    // Actualización del post...
+}
+
+public function destroy(Post $post): JsonResponse
+{
+    if (!$post) {
+        throw new ModelNotFoundException("Post no encontrado");
+    }
+    $post->delete();
+    return response()->json(['message' => 'Post eliminado'], 200);
+}
+#+END_SRC
+
+** Validaciones Mejoradas en Requests
+
+Modificamos ~PostRequest.php~ para personalizar los mensajes de error:
+
+#+BEGIN_SRC php
+public function messages()
+{
+    return [
+        'title.required' => 'El título es obligatorio.',
+        'title.max' => 'El título no puede superar los 70 caracteres.',
+        'image.required' => 'La imagen es obligatoria.',
+        'image.image' => 'El archivo debe ser una imagen.',
+        'description.required' => 'La descripción es obligatoria.',
+    ];
+}
+#+END_SRC
+
+
+*** Middleware no intercepta errores al pedir un post inexistente
+Laravel lanza una ~ModelNotFoundException~ cuando se usa "Route Model
+Binding" (~Post $post~) y el post no existe. Esto no se capturaba en
+el middleware por defecto.
+
+**** Solución:
+Modificamos ~ApiExceptionHandler.php~ para capturar ~ModelNotFoundException~:
+
+#+BEGIN_SRC php
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+public function handle($request, Closure $next)
+{
+    try {
+        return $next($request);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['error' => 'Recurso no encontrado'], 404);
+    }
+    // Otras capturas de errores...
+}
+#+END_SRC
+
+Después de estos cambios, la API devolverá respuestas JSON más claras y estructuradas en caso de errores.
+
+
+** Troubleshooting de Errores Comunes
+
+*** "Please provide a valid cache path"
+Este error ocurre cuando Laravel no puede escribir en la caché debido a un problema con la ruta de almacenamiento.
+
+**** Solución:
+Ejecuta estos comandos para limpiar y regenerar la caché:
+
+#+BEGIN_SRC bash
+sail artisan config:clear
+sail artisan cache:clear
+sail artisan config:cache
+#+END_SRC
+
+Si el problema persiste, asegúrate de que la carpeta ~storage/framework/cache~ existe y tiene los permisos correctos:
+
+#+BEGIN_SRC bash
+sail artisan storage:link
+chmod -R 775 storage bootstrap/cache
+#+END_SRC
 
 *** Conclusiones
 Y listo, ya tenemos nuestra API completamente funcional con
@@ -1103,6 +1280,17 @@ https://blog.logrocket.com/implementing-jwt-authentication-laravel-9/
 
 https://www.linkedin.com/pulse/rest-api-laravel-10-using-jwt-token-muhammad-babar-gvqfc/
 
+
+* Apendice I: Recomponer vendor
+#+begin_src bash
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php81-composer:latest \
+    composer install --ignore-platform-reqs
+
+#+end_src
 
 
 Footnotes:

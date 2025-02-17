@@ -14,6 +14,19 @@ use Illuminate\Support\Facades\Validator;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
+/**
+ * @OA\Info(
+ *     version="1.0.0",
+ *     title="API Documentation",
+ *     description="API Documentation"
+ * )
+ * @OA\Server(
+ *     url="http://localhost:8000",
+ *     description="Local server"
+ * )
+ 
+ */
+
 
 class PostController extends Controller
 {
@@ -25,6 +38,22 @@ class PostController extends Controller
 
     /**
      * Display a listing of the resource.
+     */
+    /**
+     * @OA\Get(
+     *    path="/api/v1/posts",
+     *   summary="Get all posts",
+     * description="Get all posts",
+     * operationId="index",
+     * tags={"Posts"},
+     * security={{"bearerAuth": {}}},
+     * @OA\Response(
+     *   response=200,
+     * description="Successful operation",
+     * @OA\JsonContent(
+     *  type="array",
+     * @OA\Items(ref="#/components/schemas/Post"))
+     * ))
      */
     public function index()
     {
@@ -40,6 +69,10 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        if (!auth()->user()->can('create post')) {
+            return response()->json(['error' =>
+            'No tienes permisos para crear posts'], 403);
+        }
         $request->validated();
         $user = Auth::user();
         $post = new Post();
@@ -88,6 +121,10 @@ class PostController extends Controller
             'image' => 'image|max:1024'
         ])->validate();
 */
+        if (!auth()->user()->can('edit post')) {
+            return response()->json(['error' =>
+            'No tienes permisos para modificar posts'], 403);
+        }
         if (!$post) {
             throw new NotFoundHttpException("Post no encontrado");
         }
@@ -128,7 +165,10 @@ class PostController extends Controller
      */
     public function destroy(Post $post): JsonResponse
     {
-
+        if (!auth()->user()->can('delete post')) {
+            return response()->json(['error' =>
+            'No tienes permisos para borrar posts'], 403);
+        }
         if (!$post) {
             throw new NotFoundHttpException("Post no encontrado");
         }
@@ -136,7 +176,7 @@ class PostController extends Controller
         if (Auth::id() !== $post->user_id) {
             return response()->json(['message' => 'You are not the owner of this post'], 403);
         }
-   
+
 
         $res = $post->delete();
         if ($res) {

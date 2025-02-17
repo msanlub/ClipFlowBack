@@ -6,6 +6,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use \Tymon\JWTAuth\Facades\JWTAuth;
 
+/**@OA\PathItem(
+ * path="/api/v1/auth",
+ * @OA\Response(response="200", description="Success"),
+ * @OA\Response(response="401", description="Unauthorized"),
+ * @OA\Response(response="403", description="Forbidden"),
+ * )
+ * * @OA\SecurityScheme(
+ *    type="http",
+ *   scheme="bearer",
+ *  bearerFormat="JWT",
+ * )
+ */
 class AuthController extends Controller
 {
     /**

@@ -46,7 +46,7 @@ servidor de producción. Te explicaré cada paso detalladamente.
 Necesitas un VPS o servidor dedicado con un sistema operativo Linux
 (ej. Ubuntu 22.04). Lo primero es actualizarlo y preparar el entorno.
 
-*** 🔹 En el Servidor (host)
+***  En el Servidor (host)
 Conéctate vía SSH:
 
 #+BEGIN_SRC sh
@@ -70,7 +70,7 @@ sudo apt install -y curl git unzip ufw
 Sail funciona sobre Docker, así que necesitas instalarlo en el
 servidor.
 
-*** 🔹 En el Servidor (host)
+*** En el Servidor (host)
 Ejecuta:
 
 #+BEGIN_SRC sh
@@ -99,14 +99,14 @@ sudo usermod -aG docker $(whoami)
 Tienes dos opciones: subir el código desde tu máquina o clonar el
 repositorio en el servidor.
 
-*** 🔹 Opción 1: Subir desde tu máquina
+***  Opción 1: Subir desde tu máquina
 En tu máquina local:
 
 #+BEGIN_SRC sh
 scp -r tu-api usuario@tu-servidor:/var/www/
 #+END_SRC
 
-*** 🔹 Opción 2: Clonar directamente en el servidor
+***  Opción 2: Clonar directamente en el servidor
 En el servidor:
 
 #+BEGIN_SRC sh
@@ -123,7 +123,7 @@ sudo chmod -R 775 /var/www/tu-api
 
 ** Configurar Laravel y Entorno
 
-*** 🔹 Dentro del Proyecto en el Servidor
+***  Dentro del Proyecto en el Servidor
 Accede a la carpeta del proyecto:
 
 #+BEGIN_SRC sh
@@ -139,7 +139,7 @@ nano .env
 
 Cambia las siguientes variables:
 
-#+BEGIN_SRC env
+#+BEGIN_SRC bash
 APP_ENV=production
 APP_DEBUG=false
 APP_URL=https://tu-dominio.com
@@ -189,7 +189,7 @@ Dentro del contenedor de Laravel:
 Sail ya tiene Nginx dentro del contenedor, pero necesitas un **proxy
 inverso** para que la API sea accesible desde el exterior.
 
-*** 🔹 En el Servidor (host)
+***  En el Servidor (host)
 Instala Nginx:
 
 #+BEGIN_SRC sh
@@ -241,7 +241,7 @@ Esto generará y configurará automáticamente el certificado SSL.
 
 Si tu aplicación usa colas, instala `supervisor` y configúralo.
 
-*** 🔹 En el Servidor (host)
+***  En el Servidor (host)
 #+BEGIN_SRC sh
 sudo apt install -y supervisor
 #+END_SRC

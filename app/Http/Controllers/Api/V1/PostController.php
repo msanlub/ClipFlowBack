@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Laravel\Telescope\Telescope;
 
 /**
  * @OA\Info(
@@ -57,7 +58,12 @@ class PostController extends Controller
      */
     public function index()
     {
-        //
+        // Registrar un evento personalizado en Telescope
+        if (config('telescope.enabled')) {
+            Telescope::tag(function () {
+                return ['api_request', 'action:index'];
+            });
+        }
         return PostResource::collection(Post::latest()->paginate());
     }
 
@@ -69,6 +75,12 @@ class PostController extends Controller
      */
     public function store(PostRequest $request)
     {
+        if (config('telescope.enabled')) {
+            Telescope::tag(function () {
+                return ['api_request', 'action:store'];
+            });
+        }
+
         if (!auth()->user()->can('create post')) {
             return response()->json(['error' =>
             'No tienes permisos para crear posts'], 403);
@@ -102,6 +114,15 @@ class PostController extends Controller
      */
     public function show(Post $post): JsonResponse
     {
+        // Registra un evento personalizado en Telescope
+        if (config('telescope.enabled')) {
+            Telescope::tag(function () use ($post) {
+                return [
+                    'api_request',
+                    'post_id:' . $post->id,
+                ];
+            });
+        }
         if (!$post) {
             throw new NotFoundHttpException("Post no encontrado");
         }
@@ -121,6 +142,12 @@ class PostController extends Controller
             'image' => 'image|max:1024'
         ])->validate();
 */
+        if (config('telescope.enabled')) {
+            Telescope::tag(function () use ($post) {
+                return ['api_request', 'action:update', 'post_id:' . $post->id];
+            });
+        }
+
         if (!auth()->user()->can('edit post')) {
             return response()->json(['error' =>
             'No tienes permisos para modificar posts'], 403);
@@ -165,6 +192,12 @@ class PostController extends Controller
      */
     public function destroy(Post $post): JsonResponse
     {
+        if (config('telescope.enabled')) {
+            Telescope::tag(function () use ($post) {
+                return ['api_request', 'action:destroy', 'post_id:' . $post->id];
+            });
+        }
+
         if (!auth()->user()->can('delete post')) {
             return response()->json(['error' =>
             'No tienes permisos para borrar posts'], 403);

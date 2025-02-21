@@ -21,9 +21,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 */
-
 Route::group([
-    'middleware' => 'api',
+    'middleware' => ['api', \App\Http\Middleware\TelescopeMiddleware::class],
     'prefix' => 'v1/auth'
 ], function () {
     Route::post('login', [AuthController::class, 'login'])->name('login');
@@ -32,5 +31,6 @@ Route::group([
     Route::post('me', [AuthController::class, 'me'])->name('me');
 });
 
-//en una sola línea
-Route::apiResource('v1/posts',PostController::class)->middleware('api');
+// En una sola línea
+Route::apiResource('v1/posts', PostController::class)
+    ->middleware(['api', \App\Http\Middleware\TelescopeMiddleware::class]);

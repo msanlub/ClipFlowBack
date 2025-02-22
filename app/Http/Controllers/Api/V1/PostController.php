@@ -73,6 +73,50 @@ class PostController extends Controller
      * @param App\Http\Requests\V1\PostRequest $request
      * @return \Illuminate\Http\Response
      */
+    /**
+ * @OA\Post(
+ *     path="/api/v1/posts",
+ *     summary="Create a post",
+ *     description="Create a post",
+ *     operationId="store",
+ *     tags={"Posts"},
+ *     security={{"bearerAuth": {}}},
+ *     @OA\RequestBody(
+ *         required=true,
+ *         description="Post data",
+ *         @OA\MediaType(
+ *             mediaType="multipart/form-data",
+ *             @OA\Schema(
+ *                 required={"title", "description", "image"},
+ *                 @OA\Property(property="title", type="string", example="Post title"),
+ *                 @OA\Property(property="description", type="string", example="Post description"),
+ *                 @OA\Property(property="image", type="string", format="binary")
+ *             )
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=201,
+ *         description="Post created successfully",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Post created successfully")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=500,
+ *         description="Error to create post",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="message", type="string", example="Error to create post")
+ *         )
+ *     ),
+ *     @OA\Response(
+ *         response=403,
+ *         description="No tienes permisos para crear posts",
+ *         @OA\JsonContent(
+ *             @OA\Property(property="error", type="string", example="No tienes permisos para crear posts")
+ *         )
+ *     )
+ * )
+ */
     public function store(PostRequest $request)
     {
         if (config('telescope.enabled')) {

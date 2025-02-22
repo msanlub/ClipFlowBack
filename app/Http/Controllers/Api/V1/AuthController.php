@@ -34,6 +34,22 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/login",
+     *     summary="Login user and get token",
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"email","password"},
+     *             @OA\Property(property="email", type="string", format="email"),
+     *             @OA\Property(property="password", type="string", format="password")
+     *         ),
+     *     ),
+     *     @OA\Response(response=200, description="Successful login"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
+     */
     public function login()
     {
         $credentials = request(['email', 'password']);
@@ -48,6 +64,14 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
+    /**
+     * @OA\Get(
+     *     path="/api/v1/auth/me",
+     *     summary="Get authenticated user",
+     *     @OA\Response(response=200, description="Authenticated user data"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
+     */
     public function me()
     {
         return response()->json(auth()->user());
@@ -56,6 +80,14 @@ class AuthController extends Controller
      * Log the user out (Invalidate the token).
      *
      * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/logout",
+     *     summary="Logout user",
+     *     @OA\Response(response=200, description="Successfully logged out"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function logout()
     {
@@ -66,6 +98,14 @@ class AuthController extends Controller
      * Refresh a token.
      *
      * @return \Illuminate\Http\JsonResponse
+     */
+    /**
+     * @OA\Post(
+     *     path="/api/v1/auth/refresh",
+     *     summary="Refresh token",
+     *     @OA\Response(response=200, description="Token refreshed"),
+     *     @OA\Response(response=401, description="Unauthorized")
+     * )
      */
     public function refresh()
     {

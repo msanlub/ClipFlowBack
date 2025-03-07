@@ -48,6 +48,14 @@ class Handler extends ExceptionHandler
         if ($exception instanceof AuthenticationException || $exception instanceof UnauthorizedHttpException) {
             return response()->json(['error' => 'Token inválido o caducado'], 401);
         }
+
+        if ($exception instanceof \Illuminate\Validation\ValidationException) {
+            return response()->json([
+                'message' => 'Validation failed',
+                'errors' => $exception->errors()
+            ], 422);
+        }
+        
         return parent::render($request, $exception);
     }
 }

@@ -22,7 +22,7 @@ use Laravel\Telescope\Telescope;
  *     description="API Documentation"
  * )
  * @OA\Server(
- *     url="http://localhost:8000",
+ *     url="http://localhost:80",
  *     description="Local server"
  * )
  

@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\PostController;
 use App\Http\Controllers\Api\V1\FavoriteController;
 use App\Http\Controllers\Api\V1\UserVideoController;
 use App\Http\Controllers\Api\V1\TemplateController;
+use Spatie\Permission\Models\Role; 
 
 /*
 |--------------------------------------------------------------------------

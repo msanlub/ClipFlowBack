@@ -89,29 +89,35 @@ class AuthController extends Controller
      * )
      */
     public function register(Request $request)
-    {
-        // Validate the request
+{
+    try {
+        // Validar la solicitud
         $request->validate([
             'name' => 'required|string|max:100',
             'email' => 'required|email|max:78|unique:users,email',
             'password' => 'required|string|confirmed|min:8',
-        ], [], [], $request->expectsJson());
+        ]);
 
-        // Create a new user
+        // Crear un nuevo usuario
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
 
-        // Asginar el rol de usuario
+        // Asignar el rol de usuario
         $user->assignRole('user');
 
         // Generar el token JWT
         $token = auth()->login($user);
 
         return $this->respondWithToken($token);
+    } catch (\Exception $e) {
+        // Captura cualquier excepción y devuelve el mensaje
+        return response()->json(['error' => 'Error al registrar usuario: ' . $e->getMessage()], 500);
     }
+}
+
     /**
      * Get the authenticated User.
      *

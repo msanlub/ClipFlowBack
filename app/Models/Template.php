@@ -14,6 +14,8 @@ class Template extends Model
         'name',
         'description',
         'file_path',  // Ruta del archivo de la plantilla
+        'audio_path', // ruta del archivo de audio
+        'icon_path', // ruta del archivo de icono
     ];
 
     /**

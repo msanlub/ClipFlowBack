@@ -34,5 +34,10 @@ class DatabaseSeeder extends Seeder
         $editor->givePermissionTo(['create post', 'edit post']);
         $user = Role::findByName('user');
         $user->givePermissionTo('create post','delete post');
+
+        $this->call([
+            TemplateSeeder::class, // Llamar al seeder de plantilals
+        ]);
+
     }
 }

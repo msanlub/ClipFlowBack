@@ -55,8 +55,8 @@ class TemplateController extends Controller
             'img2' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'img3' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'img4' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'text1' => 'nullable|string|max:255',
-            'text2' => 'nullable|string|max:255',
+            'text1' => 'nullable|string|max:20',
+            'text2' => 'nullable|string|max:20',
         ]);
 
         $template = Template::findOrFail($id);
@@ -76,7 +76,7 @@ class TemplateController extends Controller
         $command = $templateFactory->getCommand($params, $fullOutputPath, storage_path('app/audio/' . $template->file_path));
 
         $process = Process::fromShellCommandline($command);
-        $process->setTimeout(3600);
+        $process->setTimeout(120);//tiempo estimado de generar el video de dos minutos
         $process->run();
 
         if (!$process->isSuccessful()) {

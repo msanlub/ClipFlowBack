@@ -13,7 +13,7 @@ class ActionTemplate implements VideoTemplateInterface
         $text1 = $params['text1'];
         $text2 = $params['text2'];
 
-        $audioFile = storage_path('./audio/audio.mp3');
+        $audioFile = storage_path('./audio/action.mp3');
 
         if (!file_exists($audioFile)) {
             throw new \Exception('Archivo de audio no encontrado.');

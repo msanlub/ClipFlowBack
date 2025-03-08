@@ -24,16 +24,16 @@ class FavoriteController extends Controller
     public function listFavorites()
     {
         // Obtener los templates favoritos del usuario autenticado
-        $favorites = Favorite::with('template') // Carga la relación 'template' para evitar N+1
+        $favorites = Favorite::with('template') 
             ->where('user_id', Auth::id())
             ->get();
 
-        // Formatear la respuesta (opcional, pero recomendado)
+       
         $formattedFavorites = $favorites->map(function ($favorite) {
             return [
                 'id' => $favorite->id,
                 'template_id' => $favorite->template_id,
-                'template' => $favorite->template, // Incluye la información del template
+                'template' => $favorite->template, 
             ];
         });
 

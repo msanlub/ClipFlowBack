@@ -2,35 +2,48 @@
 
 namespace App\Http\Controllers\Api\V1;
 
-use App\Http\Controllers\Controller;
-use App\Models\Template;
-use Illuminate\Http\Request;
-use App\Services\Templates\VideoTemplateFactory;
-use Symfony\Component\Process\Process;
-use Illuminate\Support\Facades\Storage;
-use App\Models\UserVideo;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller; 
+use App\Models\Template; 
+use Illuminate\Http\Request; 
+use App\Services\Templates\VideoTemplateFactory; 
+use Symfony\Component\Process\Process; 
+use Illuminate\Support\Facades\Storage; 
+use App\Models\UserVideo; 
+use Illuminate\Support\Facades\Auth; 
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+
 
 class TemplateController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['listTemplates','showTemplate']]);
+        // Define un middleware para proteger las rutas de la API, excepto las listadas.
+        // 'auth:api' verifica que el usuario esté autenticado mediante un token de API.
+        $this->middleware('auth:api', ['except' => ['listTemplates', 'showTemplate', 'index', 'store']]);
     }
 
     /**
-     * Display a listing of the templates.
+     * Muestra una lista de las plantillas.
      *
      * @return \Illuminate\Http\JsonResponse
      */
     public function listTemplates()
     {
         $templates = Template::all();
-        return response()->json($templates);
+
+        return response()->json($templates->map(function ($template) {
+            return [
+                'id' => $template->id,
+                'name' => $template->name,
+                'description' => $template->description,
+                'audio_url' => $template->getFirstMediaUrl('audio'), 
+                'icon_url' => $template->getFirstMediaUrl('icon'),  
+            ];
+        }));
     }
 
     /**
-     * Display the specified template.
+     * Muestra una plantilla específica.
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
@@ -38,77 +51,134 @@ class TemplateController extends Controller
     public function showTemplate($id)
     {
         $template = Template::findOrFail($id);
-        return response()->json($template);
+
+        return response()->json([
+            'id' => $template->id,
+            'name' => $template->name,
+            'description' => $template->description,
+            'audio_url' => $template->getFirstMediaUrl('audio'), 
+            'icon_url' => $template->getFirstMediaUrl('icon'),   
+        ]);
+    }
+
+
+    /**
+     * Almacena una nueva plantilla en el almacenamiento.
+     *
+     * @param  \Illuminate\Http\Request  $request 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $request)
+    {
+        // Valida los datos de la solicitud.
+        $request->validate([
+            'name' => 'required|string|max:15', 
+            'description' => 'nullable|string', 
+            'audio' => 'required|file|mimes:mp3,wav,ogg', 
+            'icon' => 'required|image|mimes:jpeg,png,jpg,gif,svg', 
+        ]);
+
+        // Crea una nueva plantilla con los datos de la solicitud (solo nombre y descripción).
+        $template = Template::create($request->only('name', 'description'));
+
+        // Si la solicitud contiene un archivo de audio, lo añade a la colección de medios 'audio' de la plantilla.
+        if ($request->hasFile('audio')) {
+            $template->addMediaFromRequest('audio')->toMediaCollection('audio');
+        }
+
+        // Si la solicitud contiene un archivo de icono, lo añade a la colección de medios 'icon' de la plantilla.
+        if ($request->hasFile('icon')) {
+            $template->addMediaFromRequest('icon')->toMediaCollection('icon');
+        }
+
+        // Retorna una respuesta JSON con los detalles de la plantilla creada
+        return response()->json([
+            'message' => 'Template created successfully', // Mensaje de éxito
+            'template' => [
+                'id' => $template->id, 
+                'name' => $template->name, 
+                'description' => $template->description, 
+                'audio_url' => $template->audio_url, 
+                'icon_url' => $template->icon_url, 
+            ],
+        ], 201); // Código de estado 201 Created
     }
 
     /**
-     * Generate a video using the specified template.
+     * Genera un video utilizando la plantilla especificada.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request // Objeto Request que contiene los datos de la solicitud
+     * @param  int  $id // ID de la plantilla a utilizar
      * @return \Illuminate\Http\JsonResponse
      */
     public function generateVideo(Request $request, $id)
     {
-        $request->validate([
-            'img1' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'img2' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'img3' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'img4' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'text1' => 'nullable|string|max:20',
-            'text2' => 'nullable|string|max:20',
-        ]);
+    // Validación de los datos de entrada
+    $request->validate([
+        'img1' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'img2' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'img3' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'img4' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        'text1' => 'nullable|string|max:10',
+        'text2' => 'nullable|string|max:10',
+    ]);
 
-        $template = Template::findOrFail($id);
-        $templateFactory = VideoTemplateFactory::make($template->id);
+    // Buscar la plantilla por ID
+    $template = Template::findOrFail($id);
+    // Crear una instancia de la fábrica de plantillas de video
+    $templateFactory = VideoTemplateFactory::make($template->id);
 
-        if (!$templateFactory) {
-            return response()->json(['error' => 'Template not found'], 404);
-        }
-
-        $params = $this->storeImages($request);
-        $params['text1'] = $request->text1 ?? '';
-        $params['text2'] = $request->text2 ?? '';
-
-        $outputPath = 'videos/' . uniqid() . '.mp4';
-        $fullOutputPath = storage_path('app/public/' . $outputPath);
-
-        $command = $templateFactory->getCommand($params, $fullOutputPath, storage_path('app/audio/' . $template->file_path));
-
-        $process = Process::fromShellCommandline($command);
-        $process->setTimeout(120);//tiempo estimado de generar el video de dos minutos
-        $process->run();
-
-        if (!$process->isSuccessful()) {
-            return response()->json(['error' => 'Error generating video', 'details' => $process->getErrorOutput()], 500);
-        }
-
-        $userVideo = UserVideo::create([
-            'user_id' => Auth::id(),
-            'template_id' => $template->id,
-            'file_path' => $outputPath,
-        ]);
-
-        return response()->json([
-            'message' => 'Video generated successfully',
-            'video_url' => Storage::url($outputPath),
-            'user_video_id' => $userVideo->id,
-        ]);
+    // Verificar si se encontró la plantilla
+    if (!$templateFactory) {
+        return response()->json(['error' => 'Template not found'], 404);
     }
 
-    /**
-     * Store images and return their paths.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array
-     */
-    private function storeImages(Request $request)
-    {
-        $paths = [];
-        for ($i = 1; $i <= 4; $i++) {
-            $imagePath = $request->file("img{$i}")->store('public/images');
-            $paths["img{$i}"] = Storage::url($imagePath);
-        }
-        return $paths;
+    // Almacenar las imágenes y obtener los parámetros
+    $params = $this->storeImages($request);
+    $params['text1'] = $request->text1 ?? '';
+    $params['text2'] = $request->text2 ?? '';
+
+    // Obtener el archivo de audio asociado a la plantilla
+    $audio = $template->getFirstMedia('audio');
+
+    // Verificar si se encontró el audio
+    if (!$audio) {
+        return response()->json(['error' => 'Audio not found for this template'], 404);
     }
+
+    // Construir la ruta completa al archivo de audio
+    $audioPath = $audio->getPath();
+
+    // Generar la ruta de salida para el video
+    $outputPath = 'videos/' . uniqid() . '.mp4';
+    $fullOutputPath = storage_path('app/public/' . $outputPath);
+
+    // Obtener el comando para generar el video
+    $command = $templateFactory->getCommand($params, $fullOutputPath, $audioPath);
+    // Crear un proceso para ejecutar el comando
+    $process = Process::fromShellCommandline($command);
+    $process->setTimeout(120);
+
+    // Ejecutar el proceso
+    $process->run();
+
+    // Verificar si el proceso se ejecutó correctamente
+    if (!$process->isSuccessful()) {
+        return response()->json(['error' => 'Error generating video', 'details' => $process->getErrorOutput()], 500);
+    }
+
+    // Crear un registro de UserVideo en la base de datos
+    $userVideo = UserVideo::create([
+        'user_id' => Auth::id(),
+        'template_id' => $template->id,
+        'file_path' => $outputPath,
+    ]);
+
+    // Devolver la respuesta con la información del video generado
+    return response()->json([
+        'message' => 'Video generated successfully',
+        'video_url' => Storage::url($outputPath),
+        'user_video_id' => $userVideo->id,
+    ]);
+}
 }

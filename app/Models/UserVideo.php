@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 /**
  * @OA\Schema(
  *    title="UserVideo",
  *    description="UserVideo model",
- *    required={"user_id", "template_id", "file_path"},
+ *    required={"user_id", "template_id", "media_id"},
  *    @OA\Property(
  *        property="id",
  *        type="integer",
@@ -30,12 +31,12 @@ use Illuminate\Database\Eloquent\Model;
  *        example="2"
  *    ),
  *    @OA\Property(
- *        property="file_path",
- *        type="string",
- *        description="File Path",
- *        example="videos/user123_template456.mp4"
+ *        property="media_id",
+ *        type="integer",
+ *        description="Media ID",
+ *        example="3"
  *    ),
-  *    @OA\Property(
+ *    @OA\Property(
  *        property="created_at",
  *        type="string",
  *        format="date-time",
@@ -58,7 +59,7 @@ class UserVideo extends Model
     protected $fillable = [
         'user_id',
         'template_id',
-        'file_path',  // Ruta del video creado
+        'media_id',  // ID del video en la tabla media
     ];
 
     /**
@@ -75,5 +76,13 @@ class UserVideo extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(Template::class);
+    }
+
+    /**
+     * Relación con el archivo multimedia (video) en la tabla 'media'.
+     */
+    public function media(): BelongsTo
+    {
+        return $this->belongsTo(Media::class);
     }
 }

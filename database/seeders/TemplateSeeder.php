@@ -3,54 +3,65 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
+use App\Models\Template;
+use Illuminate\Support\Facades\Storage;
 
 class TemplateSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
-    public function run(): void
+    public function run()
     {
-        DB::table('templates')->insert([
+        $templates = [
             [
                 'name' => 'Action Template',
                 'description' => 'For your most adventurous and action videos',
-                'file_path' => '.\app\Templates\ActionTemplate.php',
-                'audio_path' => '.\app\Templates\audio\action.mp3',
-                'icon_path' => '.\app\Templates\iconoTemplates\adventure.png',
-                'created_at' => now(),
-                'updated_at' => now(),
-                
+                'audio' => 'audio/action.mp3',
+                'icon' => 'icons/adventure.png',
             ],
             [
                 'name' => 'Happy Template',
                 'description' => 'Generate a video according to your happiest moments',
-                'file_path' => '.\app\Templates\HappyTemplate.php',
-                'audio_path' => '.\app\Templates\audio\happy.mp3',
-                'icon_path' => '.\app\Templates\iconoTemplates\happy.png',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'audio' => 'audio/happy.mp3',
+                'icon' => 'icons/happy.png',
             ],
             [
                 'name' => 'Rock Template',
                 'description' => 'To the purest rock and roll',
-                'file_path' => '.\app\Templates\RockTemplate.php',
-                'audio_path' => '.\app\Templates\audio\rock.mp3',
-                'icon_path' => '.\app\Templates\iconoTemplates\rock.png',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'audio' => 'audio/rock.mp3',
+                'icon' => 'icons/rock.png',
             ],
             [
                 'name' => 'Soul Template',
-                'description' => 'Soul moments ',
-                'file_path' => '.\app\Templates\SoulTemplate.php',
-                'audio_path' => '.\app\Templates\audio\soul.mp3',
-                'icon_path' => '.\app\Templates\iconoTemplates\soul.png',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'description' => 'Soul moments',
+                'audio' => 'audio/soul.mp3',
+                'icon' => 'icons/soul.png',
             ]
-        ]);
-        
+        ];
+
+        foreach ($templates as $templateData) {
+            $template = Template::create([
+                'name' => $templateData['name'],
+                'description' => $templateData['description'],
+            ]);
+
+            // Asociar el archivo de audio
+            $audioPath = storage_path('app/public/' . $templateData['audio']);
+            if (file_exists($audioPath)) {
+                $template->addMedia($audioPath)
+                         ->preservingOriginal() // Asegura que el archivo original no sea eliminado
+                         ->toMediaCollection('audio');
+            } else {
+                echo "Archivo de audio no encontrado: " . $audioPath . "\n";
+            }
+
+            // Asociar el archivo de icono
+            $iconPath = storage_path('app/public/' . $templateData['icon']);
+            if (file_exists($iconPath)) {
+                $template->addMedia($iconPath)
+                         ->preservingOriginal() // Asegura que el archivo original no sea eliminado
+                         ->toMediaCollection('icon');
+            } else {
+                echo "Archivo de icono no encontrado: " . $iconPath . "\n";
+            }
+        }
     }
 }

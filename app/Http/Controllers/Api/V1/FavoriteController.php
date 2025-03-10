@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Favorite;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Template; // Asegúrate de importar el modelo Template
+use App\Models\Template; 
 
 class FavoriteController extends Controller
 {
@@ -24,16 +24,22 @@ class FavoriteController extends Controller
     public function listFavorites()
     {
         // Obtener los templates favoritos del usuario autenticado
-        $favorites = Favorite::with('template') 
+        $favorites = Favorite::with('template')
             ->where('user_id', Auth::id())
             ->get();
 
-       
+        // Formatear la respuesta para incluir las URLs de audio e icono
         $formattedFavorites = $favorites->map(function ($favorite) {
             return [
                 'id' => $favorite->id,
                 'template_id' => $favorite->template_id,
-                'template' => $favorite->template, 
+                'template' => [
+                    'id' => $favorite->template->id,
+                    'name' => $favorite->template->name,
+                    'description' => $favorite->template->description,
+                    'audio_url' => $favorite->template->audio_url, 
+                    'icon_url' => $favorite->template->icon_url,  
+                ],
             ];
         });
 
@@ -47,7 +53,7 @@ class FavoriteController extends Controller
     {
         // Validar la solicitud
         $request->validate([
-            'template_id' => 'required|exists:templates,id', 
+            'template_id' => 'required|exists:templates,id',
         ]);
 
         // Verificar si el template ya está en favoritos
@@ -68,7 +74,20 @@ class FavoriteController extends Controller
         // Cargar la relación 'template' para incluir la información en la respuesta
         $favorite->load('template');
 
-        return response()->json($favorite, 201); // 201 creación exitosa
+        // Formatear la respuesta para incluir las URLs de audio e icono
+        $formattedFavorite = [
+            'id' => $favorite->id,
+            'template_id' => $favorite->template_id,
+            'template' => [
+                'id' => $favorite->template->id,
+                'name' => $favorite->template->name,
+                'description' => $favorite->template->description,
+                'audio_url' => $favorite->template->audio_url,
+                'icon_url' => $favorite->template->icon_url,  
+            ],
+        ];
+
+        return response()->json($formattedFavorite, 201); // 201 creación exitosa
     }
 
     /**

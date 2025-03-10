@@ -14,7 +14,7 @@ class RockTemplate implements VideoTemplateInterface
         $text2 = $params['text2'];
 
         // Ruta del audio específico para este template
-        $audioFile = storage_path('./audio/rock.mp3');
+        $audioFile = storage_path('app/public/audio/rock.mp3');
 
         if (!file_exists($audioFile)) {
             throw new \Exception('Archivo de audio no encontrado.');

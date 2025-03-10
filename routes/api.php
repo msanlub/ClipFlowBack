@@ -52,7 +52,6 @@ Route::group([
     Route::get('userVideos/{id}/download', [UserVideoController::class, 'downloadVideo']);
 });
 
-
 // En una sola línea
 Route::apiResource('v1/posts', PostController::class)
     ->middleware(['api', \App\Http\Middleware\TelescopeMiddleware::class]);

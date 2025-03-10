@@ -212,8 +212,8 @@ class AuthController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->getRoleNames(), // Si usas Spatie Roles
-                'permissions' => $user->getAllPermissions()->pluck('name'), // Si usas Spatie Permissions
+                'roles' => $user->getRoleNames(), //  Spatie Roles
+                'permissions' => $user->getAllPermissions()->pluck('name'), // Spatie Permissions
             ]
         ]);
     }

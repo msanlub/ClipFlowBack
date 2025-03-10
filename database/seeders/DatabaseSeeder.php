@@ -14,13 +14,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        \App\Models\User::factory(10)->create();
 
 
-        \App\Models\User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
 
         Role::create(['name' => 'admin']);
         Role::create(['name' => 'editor']);
@@ -34,6 +29,9 @@ class DatabaseSeeder extends Seeder
         $editor->givePermissionTo(['create post', 'edit post']);
         $user = Role::findByName('user');
         $user->givePermissionTo('create post','delete post');
+
+
+        \App\Models\User::factory(10)->create();
 
         $this->call([
             TemplateSeeder::class, // Llamar al seeder de plantilals

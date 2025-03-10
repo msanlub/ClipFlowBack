@@ -47,7 +47,7 @@ class FavoriteController extends Controller
     {
         // Validar la solicitud
         $request->validate([
-            'template_id' => 'required|exists:templates,id', // Asegura que el template_id exista en la tabla templates
+            'template_id' => 'required|exists:templates,id', 
         ]);
 
         // Verificar si el template ya está en favoritos
@@ -56,7 +56,7 @@ class FavoriteController extends Controller
             ->first();
 
         if ($existingFavorite) {
-            return response()->json(['message' => 'Template already in favorites.'], 409); // Conflicto
+            return response()->json(['message' => 'Template already in favorites.'], 409); // Conflicto ya existe en favoritos
         }
 
         // Crear un nuevo favorito
@@ -68,7 +68,7 @@ class FavoriteController extends Controller
         // Cargar la relación 'template' para incluir la información en la respuesta
         $favorite->load('template');
 
-        return response()->json($favorite, 201); // 201 Created
+        return response()->json($favorite, 201); // 201 creación exitosa
     }
 
     /**

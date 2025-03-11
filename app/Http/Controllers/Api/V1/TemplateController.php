@@ -22,12 +22,12 @@ class TemplateController extends Controller
         $this->middleware('auth:api', ['except' => ['listTemplates', 'showTemplate', 'index', 'store']]);
     }
 
-    /**
-     * Muestra una lista de las plantillas.
+/**
+     * Lista todas las plantillas.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function listTemplates()
+    public function index()
     {
         $templates = Template::all();
 
@@ -48,7 +48,7 @@ class TemplateController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showTemplate($id)
+    public function show($id)
     {
         $template = Template::findOrFail($id);
 
@@ -61,16 +61,15 @@ class TemplateController extends Controller
         ]);
     }
 
-
     /**
-     * Almacena una nueva plantilla en el almacenamiento.
+     * Crea una nueva plantilla.
      *
      * @param  \Illuminate\Http\Request  $request 
      * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
-        // Valida los datos de la solicitud.
+        // Validación de la solicitud
         $request->validate([
             'name' => 'required|string|max:15', 
             'description' => 'nullable|string', 
@@ -78,30 +77,27 @@ class TemplateController extends Controller
             'icon' => 'required|image|mimes:jpeg,png,jpg,gif,svg', 
         ]);
 
-        // Crea una nueva plantilla con los datos de la solicitud (solo nombre y descripción).
+        // Crear plantilla
         $template = Template::create($request->only('name', 'description'));
 
-        // Si la solicitud contiene un archivo de audio, lo añade a la colección de medios 'audio' de la plantilla.
         if ($request->hasFile('audio')) {
             $template->addMediaFromRequest('audio')->toMediaCollection('audio');
         }
 
-        // Si la solicitud contiene un archivo de icono, lo añade a la colección de medios 'icon' de la plantilla.
         if ($request->hasFile('icon')) {
             $template->addMediaFromRequest('icon')->toMediaCollection('icon');
         }
 
-        // Retorna una respuesta JSON con los detalles de la plantilla creada
         return response()->json([
-            'message' => 'Template created successfully', // Mensaje de éxito
+            'message' => 'Template created successfully',
             'template' => [
                 'id' => $template->id, 
                 'name' => $template->name, 
                 'description' => $template->description, 
-                'audio_url' => $template->audio_url, 
-                'icon_url' => $template->icon_url, 
+                'audio_url' => $template->getFirstMediaUrl('audio'), 
+                'icon_url' => $template->getFirstMediaUrl('icon'), 
             ],
-        ], 201); // Código de estado 201 Created
+        ], 201);
     }
 
     /**

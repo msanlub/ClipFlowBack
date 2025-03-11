@@ -20,7 +20,7 @@ class UserVideoController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function listVideo()
+    public function index()
     {
         $videos = UserVideo::where('user_id', Auth::id())
             ->with('template')
@@ -31,19 +31,32 @@ class UserVideoController extends Controller
     }
 
     /**
-     * Display the specified user video.
+     * Muestra los detalles de un video específico (para API).
      *
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function showVideo($id)
-{
-    $video = UserVideo::where('user_id', Auth::id())
-        ->with('template')
-        ->findOrFail($id);
+    public function show($id)
+    {
+        $video = UserVideo::where('user_id', Auth::id())
+            ->with('template')
+            ->findOrFail($id);
 
-    return view('user-videos.preview', compact('video'));
-}
+        return response()->json($video);
+    }
+
+    /**
+     * Muestra una vista de previsualización del video.
+     *
+     * @param  int  $id
+     * @return \Illuminate\View\View
+     */
+    public function preview($id)
+    {
+        $video = UserVideo::with('template')->findOrFail($id);
+        
+        return view('user-videos.preview', compact('video'));
+    }
 
 
     /**
@@ -52,7 +65,7 @@ class UserVideoController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deleteVideo($id)
+    public function destroy($id)
     {
         $video = UserVideo::where('user_id', Auth::id())->findOrFail($id);
 

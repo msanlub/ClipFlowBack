@@ -41,14 +41,14 @@ Route::group([
     Route::delete('favorites/{id}', [FavoriteController::class, 'destroy']);
 
     // Rutas para Template
-    Route::get('templates', [TemplateController::class, 'listTemplates']);
-    Route::get('templates/{id}', [TemplateController::class, 'showTemplate']);
+    Route::get('templates', [TemplateController::class, 'index']);
+    Route::get('templates/{id}', [TemplateController::class, 'show']);
+    Route::post('templates', [TemplateController::class, 'store']);
     Route::post('templates/{id}/generate', [TemplateController::class, 'generateVideo']);
 
     // Rutas para UserVideo
-    Route::get('userVideos', [UserVideoController::class, 'listVideo']);
-    Route::get('userVideos/{id}', [UserVideoController::class, 'showVideo']);
-    Route::delete('userVideos/{id}', [UserVideoController::class, 'deleteVideo']);
+    Route::apiResource('userVideos', UserVideoController::class)->only(['index', 'show', 'destroy']);
+    Route::get('userVideos/{id}/preview', [UserVideoController::class, 'preview']);
     Route::get('userVideos/{id}/download', [UserVideoController::class, 'downloadVideo']);
 });
 

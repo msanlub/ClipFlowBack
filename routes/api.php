@@ -44,7 +44,7 @@ Route::group([
     Route::get('templates', [TemplateController::class, 'index']);
     Route::get('templates/{id}', [TemplateController::class, 'show']);
     Route::post('templates', [TemplateController::class, 'store']);
-    Route::post('templates/{id}/generate', [TemplateController::class, 'generateVideo']);
+    Route::post('templates/{id}/generate', [TemplateController::class, 'generate']);
 
     // Rutas para UserVideo
     Route::apiResource('userVideos', UserVideoController::class)->only(['index', 'show', 'destroy']);

@@ -107,7 +107,7 @@ class TemplateController extends Controller
      * @param  int  $id // ID de la plantilla a utilizar
      * @return \Illuminate\Http\JsonResponse
      */
-    public function generateVideo(Request $request, $id)
+    public function generate(Request $request, $id)
     {
     // Validación de los datos de entrada
     $request->validate([

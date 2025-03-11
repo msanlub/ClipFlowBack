@@ -36,9 +36,9 @@ Route::group([
     Route::post('register',[AuthController::class, 'register'])->name('register');
 
     // Rutas para los favoritos (protegidas con middleware auth:api)
-    Route::get('favorites', [FavoriteController::class, 'index'])->name('favorites.listFavorites'); 
-    Route::post('favorites', [FavoriteController::class, 'store'])->name('favorites.addFavorite');
-    Route::delete('favorites/{id}', [FavoriteController::class, 'destroy'])->name('favorites.deleteFavorite'); 
+    Route::get('favorites', [FavoriteController::class, 'index']); 
+    Route::post('favorites', [FavoriteController::class, 'store']);
+    Route::delete('favorites/{id}', [FavoriteController::class, 'destroy']);
 
     // Rutas para Template
     Route::get('templates', [TemplateController::class, 'listTemplates']);

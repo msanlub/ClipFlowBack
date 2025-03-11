@@ -21,7 +21,7 @@ class FavoriteController extends Controller
     /**
      * Lista los templates favoritos del usuario autenticado.
      */
-    public function listFavorites()
+    public function index()
     {
         // Obtener los templates favoritos del usuario autenticado
         $favorites = Favorite::with('template')
@@ -49,7 +49,7 @@ class FavoriteController extends Controller
     /**
      * Añade un template a la lista de favoritos del usuario autenticado.
      */
-    public function addFavorite(Request $request)
+    public function store(Request $request)
     {
         // Validar la solicitud
         $request->validate([
@@ -93,7 +93,7 @@ class FavoriteController extends Controller
     /**
      * Elimina un template de la lista de favoritos del usuario autenticado.
      */
-    public function deleteFavorite(string $id)
+    public function destroy(string $id)
     {
         // Buscar el favorito por ID y verificar que pertenezca al usuario autenticado
         $favorite = Favorite::where('id', $id)

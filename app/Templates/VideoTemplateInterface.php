@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\Templates;
+namespace App\Templates;
 
 interface VideoTemplateInterface
 {

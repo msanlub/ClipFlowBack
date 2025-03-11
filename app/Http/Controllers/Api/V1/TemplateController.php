@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller; 
 use App\Models\Template; 
 use Illuminate\Http\Request; 
-use App\Services\Templates\VideoTemplateFactory; 
+use Database\Factories\VideoTemplateFactory; 
 use Symfony\Component\Process\Process; 
 use Illuminate\Support\Facades\Storage; 
 use App\Models\UserVideo; 
@@ -100,6 +100,32 @@ class TemplateController extends Controller
         ], 201);
     }
 
+    /**
+     * Almacena las imágenes subidas y devuelve un array con las rutas.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return array
+     */
+    private function storeImages(Request $request)
+    {
+        $params = [];
+        
+        // Procesar las 4 imágenes
+        for ($i = 1; $i <= 4; $i++) {
+            $fieldName = "img{$i}";
+            
+            if ($request->hasFile($fieldName)) {
+                // Almacenar la imagen en el directorio 'public/images'
+                $imagePath = $request->file($fieldName)->store('images', 'public');
+                
+                // Guardar la ruta completa al archivo
+                $params[$fieldName] = storage_path('app/public/' . $imagePath);
+            }
+        }
+        
+        return $params;
+    }
+    
     /**
      * Genera un video utilizando la plantilla especificada.
      *

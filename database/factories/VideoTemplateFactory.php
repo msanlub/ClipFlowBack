@@ -2,11 +2,11 @@
 
 namespace Database\Factories;
 
-use App\Services\Templates\VideoTemplateInterface;
-use App\Services\Templates\ActionTemplate;
-use App\Services\Templates\HappyTemplate;
-use App\Services\Templates\SoulTemplate;
-use App\Services\Templates\RockTemplate;
+use App\Templates\VideoTemplateInterface;
+use App\Templates\ActionTemplate;
+use App\Templates\HappyTemplate;
+use App\Templates\SoulTemplate;
+use App\Templates\RockTemplate;
 
 class VideoTemplateFactory
 {

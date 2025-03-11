@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Services\Templates;
+namespace App\Templates;
+
 
 class ActionTemplate implements VideoTemplateInterface
 {
-    public function getCommand(array $params, string $outputPath): string
+    public function getCommand(array $params, string $outputPath, string $audioFile): string
     {
         $img1 = $params['img1'];
         $img2 = $params['img2'];

@@ -62,6 +62,8 @@ class UserVideo extends Model
         'media_id',  // ID del video en la tabla media
     ];
 
+    protected $appends = ['video_url']; // agrega la url al json
+
     /**
      * Relación con Usuario.
      */
@@ -84,5 +86,22 @@ class UserVideo extends Model
     public function media(): BelongsTo
     {
         return $this->belongsTo(Media::class);
+    }
+
+    /**
+     * Pide la url del video creado
+     */
+    public function getVideoUrlAttribute()
+    {
+        return asset('storage/' . $this->attributes['file_path']);
+    }
+
+
+    /**
+     * Accesor para obtener la URL del video desde Spatie MediaLibrary.
+     */
+    protected function videoUrl(): Attribute
+    {
+        return Attribute::get(fn () => $this->media?->getUrl());
     }
 }

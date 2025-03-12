@@ -24,7 +24,9 @@ class FavoriteController extends Controller
     public function index()
     {
         // Obtener los templates favoritos del usuario autenticado
-        $favorites = Favorite::with('template')
+        $favorites = Favorite::with(['template' => function($query) {
+            $query->with('media'); // Cargar explícitamente la relación media
+        }])
             ->where('user_id', Auth::id())
             ->get();
 
@@ -72,7 +74,9 @@ class FavoriteController extends Controller
         ]);
 
         // Cargar la relación 'template' para incluir la información en la respuesta
-        $favorite->load('template');
+        $favorite->load(['template' => function($query) {
+            $query->with('media'); 
+        }]);
 
         // Formatear la respuesta para incluir las URLs de audio e icono
         $formattedFavorite = [

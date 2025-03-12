@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Database\Eloquent\Casts\Attribute; 
 
 /**
  * @OA\Schema(
@@ -59,7 +60,8 @@ class UserVideo extends Model
     protected $fillable = [
         'user_id',
         'template_id',
-        'media_id',  // ID del video en la tabla media
+        'media_id',
+        'file_path',
     ];
 
     protected $appends = ['video_url']; // agrega la url al json
@@ -92,16 +94,15 @@ class UserVideo extends Model
      * Pide la url del video creado
      */
     public function getVideoUrlAttribute()
-    {
+{
+    if (isset($this->attributes['file_path'])) {
         return asset('storage/' . $this->attributes['file_path']);
+    } elseif ($this->media) {
+        return $this->media->getUrl();
     }
+    return null;
+}
 
 
-    /**
-     * Accesor para obtener la URL del video desde Spatie MediaLibrary.
-     */
-    protected function videoUrl(): Attribute
-    {
-        return Attribute::get(fn () => $this->media?->getUrl());
-    }
+   
 }

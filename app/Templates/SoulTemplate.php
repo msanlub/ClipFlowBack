@@ -2,7 +2,6 @@
 
 namespace App\Templates;
 
-
 class SoulTemplate implements VideoTemplateInterface
 {
     public function getCommand(array $params, string $outputPath, string $audioFile): string
@@ -31,18 +30,18 @@ class SoulTemplate implements VideoTemplateInterface
             // Aplicar filtros para escalar y colocar los textos
             " -filter_complex \"" .
                 // Imagen 1 con texto 1 alineado al lado izquierdo
-                "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2, " .
+                "[0:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1:1, " .
                 "drawtext=text='{$text1}':fontcolor=white:fontsize=56:x=20:y=(h-text_h)/2, " .
                 "setpts=PTS-STARTPTS[v0];" .
                 // Imagen 2 sin texto
-                "[1:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2, " .
+                "[1:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1:1, " .
                 "setpts=PTS-STARTPTS[v1];" .
                 // Imagen 3 con texto 2 alineado al lado derecho
-                "[2:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2, " .
+                "[2:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1:1, " .
                 "drawtext=text='{$text2}':fontcolor=white:fontsize=56:x=(w-text_w)-20:y=(h-text_h)/2, " .
                 "setpts=PTS-STARTPTS[v2];" .
                 // Imagen 4 sin texto
-                "[3:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2, " .
+                "[3:v]scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2,setsar=1:1, " .
                 "setpts=PTS-STARTPTS[v3];" .
                 // Concatenar las imágenes y crear el video
                 "[v0][v1][v2][v3]concat=n=4:v=1:a=0,format=yuv420p[v]\" " .

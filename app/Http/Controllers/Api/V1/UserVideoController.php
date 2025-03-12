@@ -7,6 +7,7 @@ use App\Models\UserVideo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 
 class UserVideoController extends Controller
 {
@@ -25,7 +26,10 @@ class UserVideoController extends Controller
         $videos = UserVideo::where('user_id', Auth::id())
             ->with('template')
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($video) {
+                return $this->formatVideoResponse($video);
+            });
 
         return response()->json($videos);
     }
@@ -39,10 +43,11 @@ class UserVideoController extends Controller
     public function show($id)
     {
         $video = UserVideo::where('user_id', Auth::id())
+            ->where('id', $id)
             ->with('template')
-            ->findOrFail($id);
+            ->firstOrFail();
 
-        return response()->json($video);
+        return response()->json($this->formatVideoResponse($video));
     }
 
     /**
@@ -58,7 +63,6 @@ class UserVideoController extends Controller
         return view('user-videos.preview', compact('video'));
     }
 
-
     /**
      * Remove the specified user video.
      *
@@ -67,7 +71,9 @@ class UserVideoController extends Controller
      */
     public function destroy($id)
     {
-        $video = UserVideo::where('user_id', Auth::id())->findOrFail($id);
+        $video = UserVideo::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
 
         // Eliminar el archivo de video
         Storage::delete('public/' . $video->file_path);
@@ -86,7 +92,10 @@ class UserVideoController extends Controller
      */
     public function downloadVideo($id)
     {
-        $video = UserVideo::where('user_id', Auth::id())->findOrFail($id);
+        $video = UserVideo::where('user_id', Auth::id())
+            ->where('id', $id)
+            ->firstOrFail();
+            
         $path = storage_path('app/public/' . $video->file_path);
         $fileName = basename($path);
 
@@ -94,5 +103,29 @@ class UserVideoController extends Controller
             'Content-Type' => 'video/mp4',
             'Content-Disposition' => 'attachment; filename="' . $fileName . '"'
         ]);
+    }
+
+    /**
+     * Format video response with additional data needed by the frontend
+     *
+     * @param  UserVideo  $video
+     * @return array
+     */
+    protected function formatVideoResponse($video)
+    {
+        // Obtener nombre del archivo sin extensión para usar como nombre
+        $fileName = pathinfo($video->file_path, PATHINFO_FILENAME);
+        
+        return [
+            'id' => $video->id,
+            'name' => "Video #" . $video->id,  
+            'created_at' => $video->created_at,
+            'updated_at' => $video->updated_at,
+            'file_path' => $video->file_path,
+            'video_url' => URL::to('/storage/' . $video->file_path),
+            'template' => $video->template,
+            // Puedes agregar un thumbnail_url si lo tienes disponible
+            // 'thumbnail_url' => URL::to('/storage/thumbnails/' . $fileName . '.jpg'),
+        ];
     }
 }

@@ -18,7 +18,7 @@ yarn-error.log
 /.idea
 /.vscode
 public/images
-storage
+
 Laravel10-API.tex
 003-DespliegueServidor.tex
 _minted-003-DespliegueServidor

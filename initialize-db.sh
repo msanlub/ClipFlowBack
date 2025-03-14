@@ -12,6 +12,7 @@ if [ ! -f /var/www/html/.db_initialized ]; then
   echo "Inicializando la base de datos..."
   php artisan migrate --force
   php artisan db:seed --force
+  php artisan storage:link
   touch /var/www/html/.db_initialized
 else
   echo "La base de datos ya está inicializada."

@@ -48,7 +48,7 @@ RUN chmod +x /usr/local/bin/initialize-db.sh
 # Expone el puerto 80
 EXPOSE 80
 # Establece el script de entrada
-ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
+ENTRYPOINT ["/usr/local/bin/initialize-db.sh"]
 
 # Comando para iniciar Apache
 CMD ["apache2-foreground"]
